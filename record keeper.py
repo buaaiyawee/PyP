@@ -4,12 +4,37 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QComboBox, QLineEdit,
 from PyQt5.QtCore import Qt, QDate, QTime
 from PyQt5.QtGui import QIcon
 import sys
+import os 
+import win32com.client as win32
+import win32api
+
+class naharuethaibabyhome_logbook():
+    def __init__(self, parentt = None):
+        self.parentt = parentt
+        self.excellapp = win32.Dispatch("Excel.Application")
+        self.excellapp.Visible = True
+        self.workbook = self.excellapp.Workbooks.Open(os.path.join(os.getcwd(), "naharuethaibabyhome_records.xlsx"))
+        self.worksheet = self.workbook.Worksheets("naharuethaibabyhome_records 2022")
+
+        self.parentt.status.setText("naharuethaibabyhome connected")
+    def addingEntry(self, rec: list=None):
+        try:
+            lasrow = self.worksheet.Cells(self.worksheet.Rows.Count, "A").End(-4162).Row
+            rowindex = self.worksheet.Range("A10:A" + str(lasrow)).Find("*", self.worksheet.Cells(lasrow, "A"), -4163, 2, 1, 2).Row
+            rowindex += 1
+            
+            self.worksheet.Range(
+                self.worksheet.Cells(rowindex, "A"),
+                self.worksheet.Cells(rowindex, "G")
+            ).Value = records
+        except Exception as e:
+            self.parentt.status.setText(win32api.FormatMessage(e.hrsult))
 
 class data_entry_application(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Nusery Logs")
-        self.setWindowIcon(QIcon("/Users/Parit/Downloads/nursery.png"))
+        self.setWindowTitle("Nursery Logs")
+        self.setWindowIcon(QIcon("nursery.png"))
         self.setMinimumWidth(1200)
 
         self.thelayout = QVBoxLayout()
@@ -17,6 +42,11 @@ class data_entry_application(QWidget):
         self.setLayout(self.thelayout)
 
         self.inituserinterface()
+
+        self.reset()
+
+        self.workbooknursery = naharuethaibabyhome_logbook(self)
+
 
     def inituserinterface(self):
         partoflayout = {}
@@ -69,14 +99,22 @@ class data_entry_application(QWidget):
         partoflayout["buttons"] = QHBoxLayout()
         self.thelayout.addLayout(partoflayout["buttons"])
 
-        enterbutton = QPushButton("Enter")
+        enterbutton = QPushButton("Enter", clicked=self.adding_entry)
         partoflayout["buttons"].addWidget(enterbutton)
 
         resetbutton = QPushButton("Reset", clicked=self.reset)
         partoflayout["buttons"].addWidget(resetbutton)
 
         closebutton = QPushButton("Exit")
+        closebutton.clicked.connect(application.quit)
         partoflayout["buttons"].addWidget(closebutton)
+
+        self.status = QLabel()
+        self.status.setStyleSheet("""  
+            font-size: 23px;
+            color: #282C34;
+        """)
+        
 
     def tuitioncost(self):
         value = self.months_attending.text()
@@ -91,8 +129,17 @@ class data_entry_application(QWidget):
         self.amount.clear()
         self.cost.setText("--> Enter Amount of Months (5000 THB/Month)")
     def adding_entry(self):
-        
-        
+        records = [
+            self.edit_date.text(),
+            self.edit_nationality.text(),
+            self.edit_guardian_name.text(),
+            self.edit_child_name.text(),
+            self.months_attending.text(),
+            self.cost.text()
+        ]
+        self.workbooknursery.addingEntry(records)
+        self.reset()
+
 if __name__ == "__main__":
     application = QApplication(sys.argv)
     application.setStyleSheet('''
