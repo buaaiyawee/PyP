@@ -1,34 +1,11 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QComboBox, QLineEdit, QPushButton, \
-    QHBoxLayout, QVBoxLayout, QDateEdit, QAbstractSpinBox, QCalendarWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, \
+    QHBoxLayout, QVBoxLayout, QDateEdit
 
-from PyQt5.QtCore import Qt, QDate, QTime
+from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QIcon
-import sys
-import os 
-import win32com.client as win32
-import win32api
 
-class naharuethaibabyhome_logbook():
-    def __init__(self, parentt = None):
-        self.parentt = parentt
-        self.excellapp = win32.Dispatch("Excel.Application")
-        self.excellapp.Visible = True
-        self.workbook = self.excellapp.Workbooks.Open(os.path.join(os.getcwd(), "naharuethaibabyhome_records.xlsx"))
-        self.worksheet = self.workbook.Worksheets("naharuethaibabyhome_records 2022")
-
-        self.parentt.status.setText("naharuethaibabyhome connected")
-    def addingEntry(self, rec: list=None):
-        try:
-            lasrow = self.worksheet.Cells(self.worksheet.Rows.Count, "A").End(-4162).Row
-            rowindex = self.worksheet.Range("A10:A" + str(lasrow)).Find("*", self.worksheet.Cells(lasrow, "A"), -4163, 2, 1, 2).Row
-            rowindex += 1
-            
-            self.worksheet.Range(
-                self.worksheet.Cells(rowindex, "A"),
-                self.worksheet.Cells(rowindex, "G")
-            ).Value = records
-        except Exception as e:
-            self.parentt.status.setText(win32api.FormatMessage(e.hrsult))
+import sys 
+import csv
 
 class data_entry_application(QWidget):
     def __init__(self):
@@ -45,7 +22,6 @@ class data_entry_application(QWidget):
 
         self.reset()
 
-        self.workbooknursery = naharuethaibabyhome_logbook(self)
 
 
     def inituserinterface(self):
@@ -137,9 +113,15 @@ class data_entry_application(QWidget):
             self.months_attending.text(),
             self.cost.text()
         ]
-        self.workbooknursery.addingEntry(records)
+
         self.reset()
 
+        print(records)
+
+        with open(r"/Users/Parit/Desktop/PyP/PyP/naharuethaibabyhome.csv", "a") as f:
+            writer = csv.writer(f)
+            writer.writerow(records)
+            
 if __name__ == "__main__":
     application = QApplication(sys.argv)
     application.setStyleSheet('''
