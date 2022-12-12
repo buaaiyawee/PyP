@@ -65,7 +65,7 @@ class data_entry_application(QWidget):
 
         self.fee = QLabel("Tuition Fee:")
         self.cost = QLabel()
-        self.cost.setText("--> Enter Amount of Months (5000 THB/Month)")
+        self.cost.setText("--> Enter Amount of Months on the Left (5000 THB/Month)")
         
         partoflayout["tuition"].addWidget(self.amount, 0, alignment=Qt.AlignRight)
         partoflayout["tuition"].addWidget(self.months_attending, 5)
@@ -103,7 +103,7 @@ class data_entry_application(QWidget):
         self.edit_nationality.clear()
         self.edit_guardian_name.clear()
         self.amount.clear()
-        self.cost.setText("--> Enter Amount of Months (5000 THB/Month)")
+        self.cost.setText("--> Enter Amount of Months on the Left (5000 THB/Month)")
     def adding_entry(self):
         records = [
             self.edit_date.text(),
